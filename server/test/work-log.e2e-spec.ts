@@ -93,6 +93,53 @@ describe('WorkLog API (e2e)', () => {
       expect(response.body).toHaveProperty('hasMore');
       expect(Array.isArray(response.body.data)).toBe(true);
     });
+
+    it('фильтрует по workTypeId', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/work-log')
+        .query({
+          page: 1,
+          limit: 10,
+          sortOrder: 'desc',
+          workTypeId: '550e8400-e29b-41d4-a716-446655440000',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('data');
+    });
+
+    it('фильтрует по дате', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/work-log')
+        .query({
+          page: 1,
+          limit: 10,
+          sortOrder: 'desc',
+          date: '2025-05-20',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body).toHaveProperty('total');
+      expect(response.body).toHaveProperty('hasMore');
+    });
+
+    it('комбинирует фильтры по дате и workTypeId', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/work-log')
+        .query({
+          page: 1,
+          limit: 10,
+          sortOrder: 'desc',
+          date: '2025-05-20',
+          workTypeId: '550e8400-e29b-41d4-a716-446655440000',
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('data');
+      expect(response.body).toHaveProperty('total');
+      expect(response.body).toHaveProperty('hasMore');
+    });
   });
 
   describe('GET /work-log/:id', () => {

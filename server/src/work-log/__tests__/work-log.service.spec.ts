@@ -74,11 +74,13 @@ describe('WorkLogService', () => {
       expect(result.total).toBe(25);
       expect(result.hasMore).toBe(true);
       expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
+        where: {},
         skip: 0,
         take: 10,
         orderBy: { date: 'desc' },
         include: { workType: true },
       });
+      expect(mockPrisma.workLog.count).toHaveBeenCalledWith({ where: {} });
     });
 
     it('возвращает hasMore = false на последней странице', async () => {
@@ -97,7 +99,11 @@ describe('WorkLogService', () => {
       await service.findAll(2, 10, 'asc');
 
       expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: 10, orderBy: { date: 'asc' } }),
+        expect.objectContaining({
+          where: {},
+          skip: 10,
+          orderBy: { date: 'asc' },
+        }),
       );
     });
 
@@ -110,6 +116,79 @@ describe('WorkLogService', () => {
       expect(result.data).toEqual([]);
       expect(result.total).toBe(0);
       expect(result.hasMore).toBe(false);
+    });
+
+    it('фильтрует по workTypeId', async () => {
+      mockPrisma.workLog.findMany.mockResolvedValue([mockWorkLog]);
+      mockPrisma.workLog.count.mockResolvedValue(5);
+
+      const result = await service.findAll(1, 10, 'desc', 'wt-1');
+
+      expect(result.data).toHaveLength(1);
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
+        where: { workTypeId: 'wt-1' },
+        skip: 0,
+        take: 10,
+        orderBy: { date: 'desc' },
+        include: { workType: true },
+      });
+      expect(mockPrisma.workLog.count).toHaveBeenCalledWith({
+        where: { workTypeId: 'wt-1' },
+      });
+    });
+
+    it('фильтрует по дате (диапазон дня)', async () => {
+      mockPrisma.workLog.findMany.mockResolvedValue([mockWorkLog]);
+      mockPrisma.workLog.count.mockResolvedValue(1);
+
+      const result = await service.findAll(
+        1,
+        10,
+        'desc',
+        undefined,
+        '2025-05-20',
+      );
+
+      expect(result.data).toHaveLength(1);
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
+        where: {
+          date: { gte: expect.any(Date), lte: expect.any(Date) },
+        },
+        skip: 0,
+        take: 10,
+        orderBy: { date: 'desc' },
+        include: { workType: true },
+      });
+      expect(mockPrisma.workLog.count).toHaveBeenCalledWith({
+        where: {
+          date: { gte: expect.any(Date), lte: expect.any(Date) },
+        },
+      });
+    });
+
+    it('комбинирует фильтры по дате и workTypeId (AND)', async () => {
+      mockPrisma.workLog.findMany.mockResolvedValue([mockWorkLog]);
+      mockPrisma.workLog.count.mockResolvedValue(1);
+
+      const result = await service.findAll(1, 10, 'desc', 'wt-1', '2025-05-20');
+
+      expect(result.data).toHaveLength(1);
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
+        where: {
+          workTypeId: 'wt-1',
+          date: { gte: expect.any(Date), lte: expect.any(Date) },
+        },
+        skip: 0,
+        take: 10,
+        orderBy: { date: 'desc' },
+        include: { workType: true },
+      });
+      expect(mockPrisma.workLog.count).toHaveBeenCalledWith({
+        where: {
+          workTypeId: 'wt-1',
+          date: { gte: expect.any(Date), lte: expect.any(Date) },
+        },
+      });
     });
   });
 
