@@ -11,15 +11,24 @@ import type {
  * @param page - Номер страницы (начиная с 1)
  * @param limit - Количество записей на странице
  * @param sortOrder - Порядок сортировки по дате: 'asc' | 'desc'
+ * @param workTypeId - Опциональный фильтр по ID вида работ
+ * @param date - Опциональный фильтр по дате в формате yyyy-MM-dd
  * @returns { data: WorkLogResponse[], total: number, hasMore: boolean }
  */
 export const getWorkLogs = async (
   page: number,
   limit: number,
   sortOrder: string,
+  workTypeId?: string,
+  date?: string,
 ): Promise<PaginatedWorkLogResponse> => {
+  const params: Record<string, unknown> = { page, limit, sortOrder };
+
+  if (workTypeId) params.workTypeId = workTypeId;
+  if (date) params.date = date;
+
   const { data } = await apiClient.get<PaginatedWorkLogResponse>('/work-log', {
-    params: { page, limit, sortOrder },
+    params,
   });
 
   return data;
@@ -39,9 +48,7 @@ export const getWorkLog = async (id: string): Promise<WorkLogResponse> => {
  * Создать новую запись журнала.
  * @param dto - Данные для создания
  */
-export const createWorkLog = async (
-  dto: CreateWorkLogDto,
-): Promise<WorkLogResponse> => {
+export const createWorkLog = async (dto: CreateWorkLogDto): Promise<WorkLogResponse> => {
   const { data } = await apiClient.post<WorkLogResponse>('/work-log', dto);
 
   return data;
@@ -56,10 +63,7 @@ export const updateWorkLog = async (
   id: string,
   dto: UpdateWorkLogDto,
 ): Promise<WorkLogResponse> => {
-  const { data } = await apiClient.patch<WorkLogResponse>(
-    `/work-log/${id}`,
-    dto,
-  );
+  const { data } = await apiClient.patch<WorkLogResponse>(`/work-log/${id}`, dto);
 
   return data;
 };

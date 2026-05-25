@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+/// <reference types="jest" />
+
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -14,16 +15,16 @@ const mockWorkLog = {
   workType: { id: 'wt-1', name: 'Бетонирование' },
 };
 
-jest.mock('@/features/work-log/model/useWorkLogs');
-jest.mock('@/features/work-log/model/useSentinelObserver');
-jest.mock('@/features/work-log/model/useWorkLogMutations', () => ({
+jest.mock('../model/useWorkLogs');
+jest.mock('../model/useSentinelObserver');
+jest.mock('../model/useWorkLogMutations', () => ({
   useWorkLogDelete: jest.fn(() => ({ mutate: jest.fn(), isPending: false })),
 }));
 
 import { WorkLogTable } from '@/features/work-log/ui/WorkLogTable';
-import { useWorkLogs } from '@/features/work-log/model/useWorkLogs';
+import { useWorkLogs } from '../model/useWorkLogs';
 
-const mockedUseWorkLogs = useWorkLogs as jest.Mock;
+const mockedUseWorkLogs = useWorkLogs as unknown as jest.Mock;
 
 function renderWithQuery(ui: React.ReactElement) {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -32,6 +33,7 @@ function renderWithQuery(ui: React.ReactElement) {
 
 const defaultProps = {
   sortOrder: 'desc' as const,
+  workTypeId: undefined,
   onEdit: jest.fn(),
   deleteTarget: null,
   onDeleteRequest: jest.fn(),
@@ -85,5 +87,10 @@ describe('WorkLogTable', () => {
     expect(screen.getByText('Бетонирование')).toBeTruthy();
     expect(screen.getByText('24 м³')).toBeTruthy();
     expect(screen.getByText('Иванов И.И.')).toBeTruthy();
+  });
+
+  it('передаёт параметр date в useWorkLogs', () => {
+    renderWithQuery(<WorkLogTable {...defaultProps} date="2025-05-20" />);
+    expect(mockedUseWorkLogs).toHaveBeenCalledWith('desc', undefined, '2025-05-20');
   });
 });

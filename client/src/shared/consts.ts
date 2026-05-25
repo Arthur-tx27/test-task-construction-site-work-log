@@ -5,7 +5,7 @@
 export const API_BASE_URL = process.env['NEXT_PUBLIC_API_URL'] as string;
 
 /** Количество записей на странице */
-export const ITEMS_PER_PAGE = 10;
+export const ITEMS_PER_PAGE = 20;
 
 /** Допустимые единицы измерения для объёма работ */
 export const ALLOWED_UNITS = ['м³', 'м²', 'п.м.', 'т', 'шт.', 'л'] as const;

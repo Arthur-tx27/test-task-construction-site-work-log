@@ -42,12 +42,7 @@ describe('DeleteConfirmDialog', () => {
 
   it('кнопка Удалить заблокирована при pending', () => {
     render(
-      <DeleteConfirmDialog
-        target={target}
-        pending
-        onCancel={jest.fn()}
-        onConfirm={jest.fn()}
-      />,
+      <DeleteConfirmDialog target={target} pending onCancel={jest.fn()} onConfirm={jest.fn()} />,
     );
     const btn = screen.getByText('Удалить');
     expect(btn.hasAttribute('disabled')).toBe(true);

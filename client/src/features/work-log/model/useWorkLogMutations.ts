@@ -31,8 +31,7 @@ export function useWorkLogUpdate(onSuccess: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: WorkLogFormValues }) =>
-      updateWorkLog(id, dto),
+    mutationFn: ({ id, dto }: { id: string; dto: WorkLogFormValues }) => updateWorkLog(id, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workLogs'] });
       toast.success('Запись обновлена');

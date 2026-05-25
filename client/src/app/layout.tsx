@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
+      <body className="h-full flex flex-col overflow-hidden">
         <QueryClientProvider>
           {children}
           <Toaster richColors closeButton />

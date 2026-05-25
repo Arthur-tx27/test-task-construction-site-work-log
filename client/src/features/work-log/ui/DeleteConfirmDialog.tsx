@@ -34,19 +34,14 @@ export function DeleteConfirmDialog({
         <DialogHeader>
           <DialogTitle>Удалить запись?</DialogTitle>
           <DialogDescription>
-            Запись от {formattedDate} будет
-            удалена безвозвратно.
+            Запись от {formattedDate} будет удалена безвозвратно.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
             Отмена
           </Button>
-          <Button
-            variant="destructive"
-            disabled={pending}
-            onClick={onConfirm}
-          >
+          <Button variant="destructive" disabled={pending} onClick={onConfirm}>
             Удалить
           </Button>
         </DialogFooter>
