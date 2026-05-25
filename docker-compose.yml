@@ -3,8 +3,8 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: construction_journal
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3306:3306"
     volumes:
@@ -23,7 +23,7 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      DATABASE_URL: mysql://root:rootpassword@mysql:3306/construction_journal
+      DATABASE_URL: ${DATABASE_URL}
     ports:
       - "3000:3000"
 
