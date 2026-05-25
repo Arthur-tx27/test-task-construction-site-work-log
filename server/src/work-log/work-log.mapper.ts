@@ -1,13 +1,12 @@
+import type { WorkLog, WorkType } from '@prisma/client';
 import type { WorkLogResponse } from '../types/work-log.types';
-import type { WorkLogModel } from '../../generated/prisma/models/WorkLog';
-import type { WorkTypeModel } from '../../generated/prisma/models/WorkType';
 import type { AllowedUnit } from '../consts';
 
 /**
  * Преобразует сущность Prisma в DTO ответа.
  */
 export function mapWorkLogToResponse(
-  workLog: WorkLogModel & { workType?: WorkTypeModel },
+  workLog: WorkLog & { workType?: WorkType | null },
 ): WorkLogResponse {
   return {
     id: workLog.id,

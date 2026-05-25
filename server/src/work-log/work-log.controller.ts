@@ -10,6 +10,7 @@ import {
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { WorkLogService } from './work-log.service';
 import { CreateWorkLogDto } from './dto/create-work-log.dto';
 import { UpdateWorkLogDto } from './dto/update-work-log.dto';
@@ -17,7 +18,6 @@ import type {
   PaginatedWorkLogResponse,
   WorkLogResponse,
 } from '../types/work-log.types';
-import type { SortOrder } from '../../generated/prisma/internal/prismaNamespace';
 
 @Controller('work-log')
 export class WorkLogController {
@@ -27,9 +27,17 @@ export class WorkLogController {
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
-    @Query('sortOrder') sortOrder: SortOrder = 'desc',
+    @Query('sortOrder') sortOrder: Prisma.SortOrder = 'desc',
+    @Query('workTypeId') workTypeId?: string,
+    @Query('date') date?: string,
   ): Promise<PaginatedWorkLogResponse> {
-    return this.workLogService.findAll(Number(page), Number(limit), sortOrder);
+    return this.workLogService.findAll(
+      Number(page),
+      Number(limit),
+      sortOrder,
+      workTypeId,
+      date,
+    );
   }
 
   @Get(':id')

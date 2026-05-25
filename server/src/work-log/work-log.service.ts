@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkLogDto } from './dto/create-work-log.dto';
 import { UpdateWorkLogDto } from './dto/update-work-log.dto';
@@ -7,31 +8,50 @@ import type {
   PaginatedWorkLogResponse,
   WorkLogResponse,
 } from '../types/work-log.types';
-import type { SortOrder } from '../../generated/prisma/internal/prismaNamespace';
-import type { WorkLogUncheckedUpdateInput } from '../../generated/prisma/models/WorkLog';
 
 @Injectable()
 export class WorkLogService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Получить список записей с пагинацией и сортировкой.
+   * Получить список записей с пагинацией, сортировкой и опциональной фильтрацией.
+   * @param page - Номер страницы (начиная с 1)
+   * @param limit - Количество записей на странице
+   * @param sortOrder - 'asc' или 'desc'
+   * @param workTypeId - Опциональный фильтр по ID вида работ
+   * @param date - Опциональный фильтр по дате (ISO-строка, фильтрация за конкретный день)
    */
   async findAll(
     page: number,
     limit: number,
-    sortOrder: SortOrder,
+    sortOrder: Prisma.SortOrder,
+    workTypeId?: string,
+    date?: string,
   ): Promise<PaginatedWorkLogResponse> {
     const skip = (page - 1) * limit;
+    const where: Prisma.WorkLogWhereInput = {};
+
+    if (workTypeId) {
+      where.workTypeId = workTypeId;
+    }
+
+    if (date) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      where.date = { gte: startOfDay, lte: endOfDay };
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.workLog.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { date: sortOrder },
         include: { workType: true },
       }),
-      this.prisma.workLog.count(),
+      this.prisma.workLog.count({ where }),
     ]);
 
     const hasMore = page * limit < total;
@@ -83,7 +103,7 @@ export class WorkLogService {
   async update(id: string, dto: UpdateWorkLogDto): Promise<WorkLogResponse> {
     await this.findOne(id);
 
-    const data: WorkLogUncheckedUpdateInput = {};
+    const data: Prisma.WorkLogUncheckedUpdateInput = {};
 
     if (typeof dto.date === 'string') {
       data.date = new Date(dto.date);

@@ -1,9 +1,6 @@
 # Зависимости
 node_modules/
 
-# Генерация Prisma
-server/generated/
-
 # Сборка
 dist/
 .next/

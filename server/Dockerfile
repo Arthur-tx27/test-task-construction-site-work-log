@@ -22,9 +22,8 @@ RUN npm ci
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
-COPY --from=build /app/generated ./generated
 COPY --from=build /app/prisma.config.ts ./prisma.config.ts
 
 EXPOSE 3000
 
-CMD npx prisma migrate deploy && (npx tsx prisma/seed.ts || true) && npx tsx dist/src/main.js
+CMD npx prisma migrate deploy && (npx tsx prisma/seed.ts || true) && node dist/main.js
