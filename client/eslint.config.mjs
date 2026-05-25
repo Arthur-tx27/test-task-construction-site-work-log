@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
+import jestPlugin from 'eslint-plugin-jest';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -17,6 +18,10 @@ const eslintConfig = defineConfig([
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/consistent-type-imports': 'warn',
     },
+  },
+  {
+    files: ['**/__tests__/**', '**/*.test.*', '**/*.spec.*'],
+    ...jestPlugin.configs['flat/recommended'],
   },
 ]);
 
