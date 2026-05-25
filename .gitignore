@@ -30,3 +30,6 @@ Thumbs.db
 
 # Кеш
 *.tsbuildinfo
+
+# Next.js
+next-env.d.ts
