@@ -116,12 +116,13 @@ FormLabel.displayName = 'FormLabel';
 const FormControl = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ ...props }) => {
+>(({ ...props }, ref) => {
   const { error, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
     <div
+      ref={ref}
       data-slot="form-control"
       aria-invalid={!!error}
       aria-describedby={
