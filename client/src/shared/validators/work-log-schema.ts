@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ALLOWED_UNITS } from '../consts';
 
+/** Zod-схема валидации формы журнала работ. Валидация идентична серверной. */
 export const workLogSchema = z.object({
   date: z
     .string()

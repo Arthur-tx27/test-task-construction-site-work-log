@@ -3,6 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '../../generated/prisma/client';
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
+/**
+ * Сервис-синглтон для доступа к БД через Prisma.
+ * Глобальный модуль (PrismaModule) — доступен во всех модулях без повторного импорта.
+ * Использует MariaDB-адаптер для прямого подключения к MySQL.
+ */
 @Injectable()
 export class PrismaService
   extends PrismaClient

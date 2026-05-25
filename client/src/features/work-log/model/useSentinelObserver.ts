@@ -2,6 +2,15 @@
 
 import { useEffect, useRef } from 'react';
 
+/**
+ * Хук для обнаружения появления sentinel-элемента в DOM с помощью MutationObserver.
+ * Используется для триггера бесконечной прокрутки.
+ * Вместо scroll-событий (частые) — MutationObserver, срабатывающий один раз при вставке sentinel'а.
+ *
+ * @param onIntersect - Функция, вызываемая при появлении sentinel'а в DOM
+ * @param enabled - Если false, наблюдатель не запускается
+ * @returns ref для sentinel-элемента
+ */
 export function useSentinelObserver(onIntersect: () => void, enabled: boolean) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 

@@ -5,6 +5,10 @@ import { toast } from 'sonner';
 import { createWorkLog, updateWorkLog, deleteWorkLog } from '@/shared/api/work-log';
 import type { WorkLogFormValues } from '@/shared/validators/work-log-schema';
 
+/**
+ * Хук для создания записи журнала.
+ * @param onSuccess - Колбэк после успешного создания (закрытие диалога)
+ */
 export function useWorkLogCreate(onSuccess: () => void) {
   const queryClient = useQueryClient();
 
@@ -19,6 +23,10 @@ export function useWorkLogCreate(onSuccess: () => void) {
   });
 }
 
+/**
+ * Хук для обновления записи журнала.
+ * @param onSuccess - Колбэк после успешного обновления (закрытие диалога)
+ */
 export function useWorkLogUpdate(onSuccess: () => void) {
   const queryClient = useQueryClient();
 
@@ -34,6 +42,10 @@ export function useWorkLogUpdate(onSuccess: () => void) {
   });
 }
 
+/**
+ * Хук для удаления записи журнала.
+ * @param onSuccess - Колбэк после успешного удаления (закрытие диалога подтверждения)
+ */
 export function useWorkLogDelete(onSuccess: () => void) {
   const queryClient = useQueryClient();
 

@@ -4,6 +4,13 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { getWorkLogs } from '@/shared/api/work-log';
 import { ITEMS_PER_PAGE } from '@/shared/consts';
 
+/**
+ * Хук для получения списка записей журнала с бесконечной прокруткой.
+ * Использует useInfiniteQuery для пагинации: getNextPageParam на основе hasMore.
+ *
+ * @param sortOrder - Порядок сортировки по дате: 'asc' (старые сверху) | 'desc' (новые сверху)
+ * @returns Объект InfiniteQuery — data, fetchNextPage, hasNextPage, isLoading и др.
+ */
 export function useWorkLogs(sortOrder: 'asc' | 'desc' = 'desc') {
   return useInfiniteQuery({
     queryKey: ['workLogs', sortOrder],
