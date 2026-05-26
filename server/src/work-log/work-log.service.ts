@@ -101,8 +101,6 @@ export class WorkLogService {
    * Обновить существующую запись журнала.
    */
   async update(id: string, dto: UpdateWorkLogDto): Promise<WorkLogResponse> {
-    await this.findOne(id);
-
     const data: Prisma.WorkLogUncheckedUpdateInput = {};
 
     if (typeof dto.date === 'string') {
@@ -121,20 +119,39 @@ export class WorkLogService {
       data.performerName = dto.performerName;
     }
 
-    const workLog = await this.prisma.workLog.update({
-      where: { id },
-      data,
-      include: { workType: true },
-    });
+    try {
+      const workLog = await this.prisma.workLog.update({
+        where: { id },
+        data,
+        include: { workType: true },
+      });
 
-    return mapWorkLogToResponse(workLog);
+      return mapWorkLogToResponse(workLog);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Запись журнала не найдена');
+      }
+      throw error;
+    }
   }
 
   /**
    * Удалить запись журнала.
    */
   async delete(id: string): Promise<void> {
-    await this.findOne(id);
-    await this.prisma.workLog.delete({ where: { id } });
+    try {
+      await this.prisma.workLog.delete({ where: { id } });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Запись журнала не найдена');
+      }
+      throw error;
+    }
   }
 }

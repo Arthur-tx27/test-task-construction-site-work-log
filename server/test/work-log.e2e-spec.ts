@@ -9,6 +9,7 @@ import {
 } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import request from 'supertest';
 
 const date = new Date('2025-05-20');
@@ -223,7 +224,6 @@ describe('WorkLog API (e2e)', () => {
 
   describe('PATCH /work-log/:id', () => {
     it('обновляет запись (200)', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValue(mockWorkLog);
       mockPrisma.workLog.update.mockResolvedValue({
         ...mockWorkLog,
         performerName: 'Петров П.П.',
@@ -237,7 +237,12 @@ describe('WorkLog API (e2e)', () => {
     });
 
     it('возвращает 404 при обновлении несуществующей записи', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValueOnce(null);
+      mockPrisma.workLog.update.mockRejectedValueOnce(
+        new Prisma.PrismaClientKnownRequestError('Запись не найдена', {
+          code: 'P2025',
+          clientVersion: '7.8.0',
+        }),
+      );
 
       const response = await request(app.getHttpServer())
         .patch('/work-log/550e8400-e29b-41d4-a716-446655440001')
@@ -249,8 +254,6 @@ describe('WorkLog API (e2e)', () => {
 
   describe('DELETE /work-log/:id', () => {
     it('удаляет запись (204)', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValue(mockWorkLog);
-
       const response = await request(app.getHttpServer()).delete(
         '/work-log/550e8400-e29b-41d4-a716-446655440000',
       );

@@ -8,6 +8,7 @@ import {
 } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { WorkLogService } from '../work-log.service';
 
 const date = new Date('2025-05-20');
@@ -73,13 +74,15 @@ describe('WorkLogService', () => {
       expect(result.data).toHaveLength(1);
       expect(result.total).toBe(25);
       expect(result.hasMore).toBe(true);
-      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
-        where: {},
-        skip: 0,
-        take: 10,
-        orderBy: { date: 'desc' },
-        include: { workType: true },
-      });
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {},
+          skip: 0,
+          take: 10,
+          orderBy: [{ date: 'desc' }, { id: 'desc' }],
+          include: { workType: true },
+        }),
+      );
       expect(mockPrisma.workLog.count).toHaveBeenCalledWith({ where: {} });
     });
 
@@ -102,7 +105,7 @@ describe('WorkLogService', () => {
         expect.objectContaining({
           where: {},
           skip: 10,
-          orderBy: { date: 'asc' },
+          orderBy: [{ date: 'asc' }, { id: 'asc' }],
         }),
       );
     });
@@ -125,13 +128,15 @@ describe('WorkLogService', () => {
       const result = await service.findAll(1, 10, 'desc', 'wt-1');
 
       expect(result.data).toHaveLength(1);
-      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
-        where: { workTypeId: 'wt-1' },
-        skip: 0,
-        take: 10,
-        orderBy: { date: 'desc' },
-        include: { workType: true },
-      });
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { workTypeId: 'wt-1' },
+          skip: 0,
+          take: 10,
+          orderBy: [{ date: 'desc' }, { id: 'desc' }],
+          include: { workType: true },
+        }),
+      );
       expect(mockPrisma.workLog.count).toHaveBeenCalledWith({
         where: { workTypeId: 'wt-1' },
       });
@@ -150,15 +155,17 @@ describe('WorkLogService', () => {
       );
 
       expect(result.data).toHaveLength(1);
-      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
-        where: {
-          date: { gte: expect.any(Date), lte: expect.any(Date) },
-        },
-        skip: 0,
-        take: 10,
-        orderBy: { date: 'desc' },
-        include: { workType: true },
-      });
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            date: { gte: expect.any(Date), lte: expect.any(Date) },
+          },
+          skip: 0,
+          take: 10,
+          orderBy: [{ date: 'desc' }, { id: 'desc' }],
+          include: { workType: true },
+        }),
+      );
       expect(mockPrisma.workLog.count).toHaveBeenCalledWith({
         where: {
           date: { gte: expect.any(Date), lte: expect.any(Date) },
@@ -173,16 +180,18 @@ describe('WorkLogService', () => {
       const result = await service.findAll(1, 10, 'desc', 'wt-1', '2025-05-20');
 
       expect(result.data).toHaveLength(1);
-      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith({
-        where: {
-          workTypeId: 'wt-1',
-          date: { gte: expect.any(Date), lte: expect.any(Date) },
-        },
-        skip: 0,
-        take: 10,
-        orderBy: { date: 'desc' },
-        include: { workType: true },
-      });
+      expect(mockPrisma.workLog.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            workTypeId: 'wt-1',
+            date: { gte: expect.any(Date), lte: expect.any(Date) },
+          },
+          skip: 0,
+          take: 10,
+          orderBy: [{ date: 'desc' }, { id: 'desc' }],
+          include: { workType: true },
+        }),
+      );
       expect(mockPrisma.workLog.count).toHaveBeenCalledWith({
         where: {
           workTypeId: 'wt-1',
@@ -241,7 +250,6 @@ describe('WorkLogService', () => {
 
   describe('update', () => {
     it('обновляет запись', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValue(mockWorkLog);
       const updated = { ...mockWorkLog, performerName: 'Петров П.П.' };
       mockPrisma.workLog.update.mockResolvedValue(updated);
 
@@ -258,7 +266,12 @@ describe('WorkLogService', () => {
     });
 
     it('выбрасывает NotFoundException при обновлении несуществующей записи', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValue(null);
+      mockPrisma.workLog.update.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('Запись не найдена', {
+          code: 'P2025',
+          clientVersion: '7.8.0',
+        }),
+      );
 
       await expect(
         service.update('bad-id', { performerName: 'Петров П.П.' }),
@@ -268,7 +281,6 @@ describe('WorkLogService', () => {
 
   describe('delete', () => {
     it('удаляет запись', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValue(mockWorkLog);
       mockPrisma.workLog.delete.mockResolvedValue(undefined);
 
       await service.delete('wl-1');
@@ -279,7 +291,12 @@ describe('WorkLogService', () => {
     });
 
     it('выбрасывает NotFoundException при удалении несуществующей записи', async () => {
-      mockPrisma.workLog.findUnique.mockResolvedValue(null);
+      mockPrisma.workLog.delete.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('Запись не найдена', {
+          code: 'P2025',
+          clientVersion: '7.8.0',
+        }),
+      );
 
       await expect(service.delete('bad-id')).rejects.toThrow(NotFoundException);
     });
