@@ -63,7 +63,7 @@ docker compose up --build
 
 ```bash
 cd server
-cp .env.example .env    # или создать .env с DATABASE_URL
+echo 'DATABASE_URL="mysql://root:rootpassword@localhost:3306/construction_journal"' > .env
 npm install
 npx prisma migrate dev  # применить миграции
 npx prisma db seed      # заполнить справочник видов работ
@@ -74,9 +74,8 @@ npm run start:dev       # http://localhost:3000
 
 ```bash
 cd client
-cp .env.local.example .env.local   # если нужно, стандартное значение: http://localhost:3000
 npm install
-npm run dev             # http://localhost:3000
+npm run dev             # http://localhost:5173
 ```
 
 ---
@@ -90,6 +89,7 @@ npm run dev             # http://localhost:3000
 - **Добавление записи** — форма с валидацией всех полей (дата, вид работ, объём, ед. изм., ФИО)
 - **Редактирование** — возможность изменить любую запись
 - **Удаление** — подтверждение перед удалением
+- **Обработка ошибок** — глобальный ExceptionFilter на бэке (Prisma-ошибки → HTTP-ответы, скрытие стека), тосты с русским текстом на фронте
 - **Адаптивная вёрстка** — на мобильных устройствах фильтры перестраиваются в вертикальный стек (лейбл + контрол на одной строке с выравниванием по краям); на планшетах пары «лейбл + контрол» переносятся целиком без разрыва
 - **Справочник видов работ** — выбор из предзаполненного списка (10 видов)
 
@@ -106,7 +106,14 @@ npm run dev             # http://localhost:3000
 | DELETE | `/work-log/:id` | Удалить запись (204) |
 | GET | `/work-type` | Справочник видов работ |
 
-**Пагинация:**
+**Параметры пагинации:**
+| Параметр | Тип | По умолчанию | Ограничения |
+|----------|-----|-------------|-------------|
+| `page` | integer | 1 | ≥ 1 |
+| `limit` | integer | 10 | 1–100 |
+| `sortOrder` | string | `desc` | `asc` или `desc` |
+
+**Формат ответа:**
 ```json
 {
   "data": [{ "id": "...", "date": "2025-05-20", "volume": 24, "unit": "м³", ... }],
@@ -116,7 +123,7 @@ npm run dev             # http://localhost:3000
 ```
 - `hasMore = page * limit < total`
 
-**Валидация:**
+**Валидация полей записи:**
 | Поле | Ограничения |
 |------|------------|
 | date | ISO 8601, не будущее |
@@ -124,6 +131,13 @@ npm run dev             # http://localhost:3000
 | volume | > 0, ≤ 1 000 000 |
 | unit | `м³`, `м²`, `п.м.`, `т`, `шт.`, `л` |
 | performerName | 2–100 символов, буквы/пробелы/дефисы/точки |
+
+**Коды ошибок:**
+| Статус | Причина |
+|--------|---------|
+| 400 | Ошибка валидации полей или несуществующий `workTypeId` (P2003) |
+| 404 | Запись не найдена (P2025) |
+| 500 | Внутренняя ошибка сервера (стек скрыт) |
 
 ---
 
@@ -166,8 +180,10 @@ construction-journal/
 │   │   └── seed.ts            # Сидирование WorkType
 │   ├── src/
 │   │   ├── prisma/            # PrismaService (синглтон)
-│   │   ├── work-log/          # Модуль WorkLog (CRUD + пагинация)
+│   │   ├── work-log/          # Модуль WorkLog (CRUD + пагинация + DTO)
 │   │   ├── work-type/         # Модуль WorkType (справочник)
+│   │   ├── filters/           # Глобальный ExceptionFilter (Prisma → HTTP)
+│   │   ├── validators/        # Кастомные валидаторы (IsNotFutureDate)
 │   │   ├── types/             # Типы API-ответов
 │   │   └── consts.ts          # Допустимые единицы измерения
 │   ├── test/                  # E2E тесты
@@ -194,13 +210,26 @@ construction-journal/
 
 ---
 
+## Переменные окружения
+
+| Переменная | Где используется | Назначение |
+|-----------|-----------------|------------|
+| `MYSQL_ROOT_PASSWORD` | `docker-compose.yml` | Пароль root пользователя MySQL |
+| `MYSQL_DATABASE` | `docker-compose.yml` | Имя базы данных |
+| `DATABASE_URL` | `server/.env`, `docker-compose.yml` | Строка подключения Prisma к MySQL |
+| `CORS_ORIGIN` | `server/src/main.ts` | Допустимый origin для CORS (по умолчанию `http://localhost:5173`) |
+| `NEXT_PUBLIC_API_URL` | `client/` | URL бэкенда для запросов с фронта |
+| `PORT` | `server/src/main.ts` | Порт сервера (по умолчанию `3000`) |
+
+---
+
 ## Тестирование
 
 ```bash
 # Бэкенд
 cd server
-npm test          # 14 unit-тестов (WorkLogService + WorkTypeService)
-npm run test:e2e  # 12 E2E-тестов (контроллеры через supertest)
+npm test          # 16 unit-тестов (WorkLogService + WorkTypeService)
+npm run test:e2e  # 14 интеграционных тестов (контроллеры через supertest, БД замокана)
 
 # Фронтенд
 cd client
