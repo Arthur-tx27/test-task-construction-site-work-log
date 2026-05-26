@@ -9,6 +9,7 @@ import {
   Length,
 } from 'class-validator';
 import { ALLOWED_UNITS, ALLOWED_UNITS_MESSAGE } from '../../consts';
+import { IsNotFutureDate } from '../../validators/is-not-future-date.validator';
 
 export class CreateWorkLogDto {
   @IsISO8601(
@@ -16,6 +17,7 @@ export class CreateWorkLogDto {
     { message: 'Дата должна быть в формате ISO 8601' },
   )
   @IsNotEmpty({ message: 'Дата обязательна' })
+  @IsNotFutureDate()
   date!: string;
 
   @IsUUID('4', { message: 'workTypeId должен быть UUID v4' })

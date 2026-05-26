@@ -1,12 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  const configService = app.get(ConfigService);
+  const corsOrigin = configService.getOrThrow<string>('CORS_ORIGIN');
+
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: corsOrigin,
   });
 
   app.useGlobalPipes(
@@ -16,6 +21,8 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3000);
 }
