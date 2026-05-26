@@ -48,7 +48,7 @@ export class WorkLogService {
         where,
         skip,
         take: limit,
-        orderBy: { date: sortOrder },
+        orderBy: [{ date: sortOrder }, { id: sortOrder }],
         include: { workType: true },
       }),
       this.prisma.workLog.count({ where }),
