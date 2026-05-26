@@ -45,6 +45,7 @@ docker compose up --build
 MYSQL_ROOT_PASSWORD=rootpassword \
 MYSQL_DATABASE=construction_journal \
 DATABASE_URL=mysql://root:rootpassword@mysql:3306/construction_journal \
+CORS_ORIGIN=http://localhost:5173 \
   docker compose up --build
 ```
 
@@ -54,6 +55,7 @@ DATABASE_URL=mysql://root:rootpassword@mysql:3306/construction_journal \
 export MYSQL_ROOT_PASSWORD=rootpassword
 export MYSQL_DATABASE=construction_journal
 export DATABASE_URL=mysql://root:rootpassword@mysql:3306/construction_journal
+export CORS_ORIGIN=http://localhost:5173
 docker compose up --build
 ```
 
@@ -217,7 +219,7 @@ construction-journal/
 | `MYSQL_ROOT_PASSWORD` | `docker-compose.yml` | Пароль root пользователя MySQL |
 | `MYSQL_DATABASE` | `docker-compose.yml` | Имя базы данных |
 | `DATABASE_URL` | `server/.env`, `docker-compose.yml` | Строка подключения Prisma к MySQL |
-| `CORS_ORIGIN` | `server/src/main.ts` | Допустимый origin для CORS (по умолчанию `http://localhost:5173`) |
+| `CORS_ORIGIN` | `docker-compose.yml`, `server/src/main.ts` | Разрешённый origin для CORS (по умолчанию `http://localhost:5173`) |
 | `NEXT_PUBLIC_API_URL` | `client/` | URL бэкенда для запросов с фронта |
 | `PORT` | `server/src/main.ts` | Порт сервера (по умолчанию `3000`) |
 
