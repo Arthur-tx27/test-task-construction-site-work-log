@@ -8,9 +8,9 @@ export const workLogSchema = z.object({
     .min(1, 'Дата обязательна')
     .refine((val) => !Number.isNaN(Date.parse(val)), 'Некорректная дата')
     .refine((val) => new Date(val) <= new Date(), 'Дата не может быть в будущем'),
-  workTypeId: z.string().uuid('Некорректный UUID').min(1, 'Вид работ обязателен'),
+  workTypeId: z.string().uuid('Выберите вид работ из списка').min(1, 'Вид работ обязателен'),
   volume: z
-    .number()
+    .number('Объём должен быть положительным')
     .positive('Объём должен быть положительным')
     .max(1_000_000, 'Объём не должен превышать 1 000 000'),
   unit: z.enum(ALLOWED_UNITS, { message: 'Недопустимая единица измерения' }),

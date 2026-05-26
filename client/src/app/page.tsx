@@ -57,7 +57,12 @@ export default function Home() {
         deleteTarget={deleteTarget}
         onDeleteRequest={handleDeleteRequest}
       />
-      <WorkLogDialog open={dialogOpen} onClose={handleCloseDialog} workLog={editTarget} />
+      <WorkLogDialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        workLog={editTarget}
+        workTypes={workTypes}
+      />
     </main>
   );
 }

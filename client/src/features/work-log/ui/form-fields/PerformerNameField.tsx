@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl } from '@/shared/ui/form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/shared/ui/form';
 import { Input } from '@/shared/ui/input';
 import type { WorkLogFormValues } from '@/shared/validators/work-log-schema';
 
@@ -15,6 +15,7 @@ export function PerformerNameField() {
         <FormControl>
           <Input {...register('performerName')} />
         </FormControl>
+        <FormMessage />
       </FormItem>
     </FormField>
   );

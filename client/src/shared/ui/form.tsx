@@ -6,7 +6,7 @@ import type { UseFormReturn, FieldPath, FieldValues } from 'react-hook-form';
 import { cn } from '@/shared/lib/utils';
 
 interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- обобщённый тип для react-hook-form (shadcn/ui)
   form: UseFormReturn<any>;
 }
 

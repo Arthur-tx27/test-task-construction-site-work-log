@@ -18,6 +18,7 @@ export function VolumeUnitFields() {
           <FormControl>
             <Input type="number" step="any" {...register('volume', { valueAsNumber: true })} />
           </FormControl>
+          <FormMessage />
         </FormItem>
       </FormField>
 

@@ -1,15 +1,15 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Form } from '@/shared/ui/form';
 import { Button } from '@/shared/ui/button';
-import { getWorkTypes } from '@/shared/api/work-type';
 import { workLogSchema } from '@/shared/validators/work-log-schema';
 import type { WorkLogFormValues } from '@/shared/validators/work-log-schema';
 import type { WorkLogResponse } from '@/shared/types/work-log';
+import type { WorkType } from '@/shared/types/work-type';
 import { useWorkLogCreate, useWorkLogUpdate } from '../model/useWorkLogMutations';
 import { DateField } from './form-fields/DateField';
 import { WorkTypeField } from './form-fields/WorkTypeField';
@@ -18,36 +18,41 @@ import { PerformerNameField } from './form-fields/PerformerNameField';
 
 interface WorkLogFormContentProps {
   workLog?: WorkLogResponse | null;
+  workTypes: WorkType[];
   onClose: () => void;
 }
 
-export function WorkLogFormContent({ workLog, onClose }: WorkLogFormContentProps) {
-  const isEditing = !!workLog;
+function getDefaultValues(workLog?: WorkLogResponse | null): WorkLogFormValues {
+  if (workLog) {
+    return {
+      date: workLog.date,
+      workTypeId: workLog.workTypeId,
+      volume: workLog.volume,
+      unit: workLog.unit as WorkLogFormValues['unit'],
+      performerName: workLog.performerName,
+    };
+  }
 
-  const { data: workTypes = [] } = useQuery({
-    queryKey: ['workTypes'],
-    queryFn: getWorkTypes,
-  });
+  return {
+    date: new Date().toISOString().split('T')[0],
+    workTypeId: '',
+    volume: 0,
+    unit: 'м³',
+    performerName: '',
+  };
+}
+
+export function WorkLogFormContent({ workLog, workTypes, onClose }: WorkLogFormContentProps) {
+  const isEditing = !!workLog;
 
   const form = useForm<WorkLogFormValues>({
     resolver: zodResolver(workLogSchema),
-    defaultValues:
-      isEditing && workLog
-        ? {
-            date: workLog.date,
-            workTypeId: workLog.workTypeId,
-            volume: workLog.volume,
-            unit: workLog.unit as WorkLogFormValues['unit'],
-            performerName: workLog.performerName,
-          }
-        : {
-            date: new Date().toISOString().split('T')[0],
-            workTypeId: '',
-            volume: 0,
-            unit: 'м³',
-            performerName: '',
-          },
+    defaultValues: getDefaultValues(workLog),
   });
+
+  useEffect(() => {    
+    form.reset(getDefaultValues(workLog));
+  }, [workLog, form]);
 
   const createMutation = useWorkLogCreate(onClose);
   const updateMutation = useWorkLogUpdate(onClose);
