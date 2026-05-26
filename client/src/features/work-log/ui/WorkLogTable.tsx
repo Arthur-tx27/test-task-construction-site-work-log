@@ -66,7 +66,7 @@ export function WorkLogTable({
           className="flex-1 min-h-0 overflow-y-auto overflow-x-auto rounded-md border [&_[data-slot=table-container]]:!overflow-x-visible"
         >
           <Table>
-            <TableHeader className="sticky top-0 bg-background z-10">
+            <TableHeader className="sticky top-0 bg-background z-10 shadow-sm">
               <TableRow>
                 {COLUMNS.map((col) => (
                   <TableHead key={col}>{col}</TableHead>
