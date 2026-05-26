@@ -39,7 +39,10 @@ docker compose up --build
 
 ### Docker без .env файла
 
-Можно передать переменные напрямую в команду, создавать `.env` необязательно:
+Можно передать переменные напрямую в команду. **Рекомендуется использовать `.env`** — это самый надёжный способ, работающий на всех ОС.
+
+<details>
+<summary>Linux / macOS (Bash / Zsh)</summary>
 
 ```bash
 MYSQL_ROOT_PASSWORD=rootpassword \
@@ -49,7 +52,7 @@ CORS_ORIGIN=http://localhost:5173 \
   docker compose up --build
 ```
 
-Или экспортировать переменные в shell перед запуском:
+Или экспортом:
 
 ```bash
 export MYSQL_ROOT_PASSWORD=rootpassword
@@ -58,6 +61,34 @@ export DATABASE_URL=mysql://root:rootpassword@mysql:3306/construction_journal
 export CORS_ORIGIN=http://localhost:5173
 docker compose up --build
 ```
+
+</details>
+
+<details>
+<summary>Windows (PowerShell)</summary>
+
+```powershell
+$env:MYSQL_ROOT_PASSWORD="rootpassword"
+$env:MYSQL_DATABASE="construction_journal"
+$env:DATABASE_URL="mysql://root:rootpassword@mysql:3306/construction_journal"
+$env:CORS_ORIGIN="http://localhost:5173"
+docker compose up --build
+```
+
+</details>
+
+<details>
+<summary>Windows (CMD)</summary>
+
+```cmd
+set "MYSQL_ROOT_PASSWORD=rootpassword"
+set "MYSQL_DATABASE=construction_journal"
+set "DATABASE_URL=mysql://root:rootpassword@mysql:3306/construction_journal"
+set "CORS_ORIGIN=http://localhost:5173"
+docker compose up --build
+```
+
+</details>
 
 ### Для разработки
 
