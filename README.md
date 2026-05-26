@@ -10,7 +10,7 @@
 |-----------|-----------|--------|
 | **Фронтенд** | Next.js 16 (App Router) + React 19 | Современный React с SSR, маршрутизация из коробки |
 | **Стили** | Tailwind CSS 4 + shadcn/ui 4 | Утилитарная стилизация + готовые компоненты с доступностью (Base UI) |
-| **Стейт-менеджмент** | TanStack Query | Кеширование, автоматическая инвалидация, `useSentinelObserver` для пагинации |
+| **Стейт-менеджмент** | TanStack Query | Кеширование, автоматическая инвалидация, `useInfiniteQuery` для пагинации |
 | **Формы** | react-hook-form + zod | Производительная валидация с типизированными схемами |
 | **Бэкенд** | NestJS 11 + TypeScript | Модульная архитектура, DI, декораторы, строгая типизация |
 | **БД** | MySQL 8.0 | Надёжная реляционная БД, поддержка транзакций |
@@ -96,7 +96,7 @@ docker compose up --build
 
 ```bash
 cd server
-echo 'DATABASE_URL="mysql://root:rootpassword@localhost:3306/construction_journal"' > .env
+cp .env.example .env
 npm install
 npx prisma migrate dev  # применить миграции
 npx prisma db seed      # заполнить справочник видов работ
@@ -107,6 +107,7 @@ npm run start:dev       # http://localhost:3000
 
 ```bash
 cd client
+cp .env.example .env.local
 npm install
 npm run dev             # http://localhost:5173
 ```
@@ -220,6 +221,7 @@ construction-journal/
 │   │   ├── types/             # Типы API-ответов
 │   │   └── consts.ts          # Допустимые единицы измерения
 │   ├── test/                  # E2E тесты
+│   ├── .env.example            # Шаблон переменных для локальной разработки
 │   ├── Dockerfile
 │   └── package.json
 ├── client/                    # Next.js frontend
@@ -235,6 +237,7 @@ construction-journal/
 │   │       ├── validators/    #   Zod-схемы
 │   │       └── consts.ts      #   Константы
 │   ├── Dockerfile
+│   ├── .env.example            # Шаблон переменных для локальной разработки
 │   └── package.json
 ├── docker-compose.yml         # mysql + server + client
 ├── .env.example               # Шаблон переменных для Docker
