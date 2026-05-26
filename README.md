@@ -251,7 +251,7 @@ construction-journal/
 | `MYSQL_DATABASE` | `docker-compose.yml` | Имя базы данных |
 | `DATABASE_URL` | `server/.env`, `docker-compose.yml` | Строка подключения Prisma к MySQL |
 | `CORS_ORIGIN` | `docker-compose.yml`, `server/src/main.ts` | Разрешённый origin для CORS (по умолчанию `http://localhost:5173`) |
-| `NEXT_PUBLIC_API_URL` | `client/` | URL бэкенда для запросов с фронта |
+| `NEXT_PUBLIC_API_URL` | `client/.env.local`, `client/Dockerfile` | URL бэкенда для запросов с фронта |
 | `PORT` | `server/src/main.ts` | Порт сервера (по умолчанию `3000`) |
 
 ---
